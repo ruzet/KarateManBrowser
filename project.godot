@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="KarateManBrowser"
-run/main_scene="uid://dt1e2mruoppp4"
+run/main_scene="uid://cpgnxtg6skvni"
 config/features=PackedStringArray("4.7", "Forward Plus")
 config/icon="res://icon.svg"
 

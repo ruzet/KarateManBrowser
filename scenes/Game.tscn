@@ -1,4 +1,4 @@
-[gd_scene format=3 uid="uid://dt1e2mruoppp4"]
+[gd_scene format=3 uid="uid://cpgnxtg6skvni"]
 
 [ext_resource type="Texture2D" uid="uid://bui31504577yg" path="res://assets/KarateJoe/KarateJoeHeadNormal.png" id="1_ibkli"]
 [ext_resource type="Texture2D" uid="uid://bxeqc3psudypc" path="res://assets/KarateJoe/KarateJoeBodyIdle.png" id="2_cpr0p"]
@@ -8,44 +8,42 @@
 [ext_resource type="Texture2D" uid="uid://jp80p6p2clf" path="res://assets/Misc/KaratekaBackground1.png" id="6_g4kob"]
 [ext_resource type="Texture2D" uid="uid://c4omqetrsawjk" path="res://assets/Misc/Reference.png" id="7_qy1jj"]
 
-[node name="Game" type="Node2D" unique_id=876074803]
+[node name="Game" type="Node2D" unique_id=841697859]
 
-[node name="KarateJoeHead" type="Sprite2D" parent="." unique_id=2085870300]
+[node name="KarateJoe" type="Node2D" parent="." unique_id=1534165855]
+position = Vector2(275, 235)
+scale = Vector2(1.85, 1.85)
+
+[node name="KarateJoeHead" type="Sprite2D" parent="KarateJoe" unique_id=1795772558]
 z_index = 1
-position = Vector2(262, 121)
-scale = Vector2(1.9062502, 1.9062502)
+position = Vector2(-8, -70)
 texture = ExtResource("1_ibkli")
 
-[node name="KarateJoeBody" type="Sprite2D" parent="." unique_id=59279538]
-position = Vector2(281, 257)
-scale = Vector2(1.9062502, 1.9062502)
+[node name="KarateJoeBody" type="Sprite2D" parent="KarateJoe" unique_id=53236839]
 texture = ExtResource("2_cpr0p")
 
-[node name="KarateJoeLeftArm" type="Sprite2D" parent="." unique_id=303206718]
+[node name="KarateJoeLeftArm" type="Sprite2D" parent="KarateJoe" unique_id=1386556736]
 z_index = -1
-position = Vector2(353, 212.00002)
-scale = Vector2(1.9062502, 1.9062502)
+position = Vector2(36, -25)
 texture = ExtResource("3_78awf")
 
-[node name="KarateJoeLeftLeg" type="Sprite2D" parent="." unique_id=2027565519]
-z_index = -2
-position = Vector2(303.00006, 400.99997)
-scale = Vector2(1.7499993, 1.7499993)
+[node name="KarateJoeLeftLeg" type="Sprite2D" parent="KarateJoe" unique_id=425500336]
+z_index = -3
+position = Vector2(16, 84)
 texture = ExtResource("4_kiw3p")
 
-[node name="KarateJoeRightLeg" type="Sprite2D" parent="." unique_id=903226105]
-z_index = -5
-position = Vector2(225.75002, 397.40002)
-scale = Vector2(1.75, 1.75)
+[node name="KarateJoeRightLeg" type="Sprite2D" parent="KarateJoe" unique_id=133972381]
+z_index = -2
+position = Vector2(-31, 84)
 texture = ExtResource("5_400sg")
 
-[node name="Background" type="Sprite2D" parent="." unique_id=1820405432]
-z_index = -99
-position = Vector2(479.5, 269.5)
-scale = Vector2(1.9979167, 1.684375)
-texture = ExtResource("6_g4kob")
-
-[node name="Reference" type="Sprite2D" parent="." unique_id=4516824]
-position = Vector2(1513, 224)
-scale = Vector2(0.31929046, 0.31929046)
+[node name="Reference" type="Sprite2D" parent="." unique_id=137896315]
+position = Vector2(1282.9999, 86.99994)
+scale = Vector2(0.23170732, 0.23170732)
 texture = ExtResource("7_qy1jj")
+
+[node name="Background" type="Sprite2D" parent="." unique_id=1610669340]
+z_index = -99
+position = Vector2(480.19513, 269.96338)
+scale = Vector2(1.9991869, 1.6877284)
+texture = ExtResource("6_g4kob")
