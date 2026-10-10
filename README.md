@@ -11,4 +11,4 @@ Z: Punch
 Esc: Pause
 
 ### All assets here made by Nintendo
-### Powered by [Löve2D](https://godotengine.org)
+### Powered by [Godot](https://godotengine.org)
