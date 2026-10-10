@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://ddroojqymtnqo" path="res://scenes/GameHandler.gd" id="1_400sg"]
 [ext_resource type="Texture2D" uid="uid://bui31504577yg" path="res://assets/KarateJoe/KarateJoeHeadNormal.png" id="1_ibkli"]
+[ext_resource type="Script" uid="uid://jucetur1hhve" path="res://scenes/ObjectHandler.gd" id="2_3xj3m"]
 [ext_resource type="Texture2D" uid="uid://bxeqc3psudypc" path="res://assets/KarateJoe/KarateJoeBodyIdle.png" id="2_cpr0p"]
 [ext_resource type="Texture2D" uid="uid://b3goqal5rv1au" path="res://assets/KarateJoe/KarateJoeArmIdle.png" id="3_78awf"]
 [ext_resource type="Texture2D" uid="uid://b8vjhblov2862" path="res://assets/KarateJoe/KarateJoeLeftLeg.png" id="4_kiw3p"]
@@ -16,6 +17,9 @@ script = ExtResource("1_400sg")
 metadata/BPM = 119.0
 metadata/CanBop = true
 metadata/Offset = 250.0
+
+[node name="Objects" type="Node2D" parent="." unique_id=724743090]
+script = ExtResource("2_3xj3m")
 
 [node name="KarateJoe" type="Node2D" parent="." unique_id=1534165855]
 position = Vector2(275, 235)
@@ -51,7 +55,6 @@ scale = Vector2(0.23170732, 0.23170732)
 texture = ExtResource("7_qy1jj")
 
 [node name="Background" type="Sprite2D" parent="." unique_id=1610669340]
-visible = false
 z_index = -99
 position = Vector2(480.19513, 269.96338)
 scale = Vector2(1.9991869, 1.6877284)
