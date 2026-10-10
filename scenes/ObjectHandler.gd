@@ -3,11 +3,12 @@ extends Node2D
 @onready var ActiveProjectiles = []
 
 func _ready() -> void:
-	ActiveProjectiles.append(Projectile.new())
-	
-	for ActiveProjectile in ActiveProjectiles:
-		ActiveProjectile.init()
-	pass
+	while true:
+		var NewProj = Projectile.new()
+		add_child(NewProj)
+		NewProj.init()
+		ActiveProjectiles.append(NewProj)
 
-func _process(_delta: float) -> void:
-	pass
+func _process(delta: float) -> void:
+	for ActiveProjectile in ActiveProjectiles:
+		ActiveProjectile.update(delta)
