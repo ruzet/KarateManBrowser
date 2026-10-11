@@ -2,7 +2,6 @@
 
 [ext_resource type="Script" uid="uid://ddroojqymtnqo" path="res://scenes/GameHandler.gd" id="1_400sg"]
 [ext_resource type="Texture2D" uid="uid://bui31504577yg" path="res://assets/KarateJoe/KarateJoeHeadNormal.png" id="1_ibkli"]
-[ext_resource type="Script" uid="uid://jucetur1hhve" path="res://scenes/ObjectHandler.gd" id="2_3xj3m"]
 [ext_resource type="Texture2D" uid="uid://bxeqc3psudypc" path="res://assets/KarateJoe/KarateJoeBodyIdle.png" id="2_cpr0p"]
 [ext_resource type="Texture2D" uid="uid://b3goqal5rv1au" path="res://assets/KarateJoe/KarateJoeArmIdle.png" id="3_78awf"]
 [ext_resource type="Texture2D" uid="uid://b8vjhblov2862" path="res://assets/KarateJoe/KarateJoeLeftLeg.png" id="4_kiw3p"]
@@ -10,16 +9,18 @@
 [ext_resource type="Texture2D" uid="uid://jp80p6p2clf" path="res://assets/Misc/KaratekaBackground1.png" id="6_g4kob"]
 [ext_resource type="Texture2D" uid="uid://c4omqetrsawjk" path="res://assets/Misc/Reference.png" id="7_qy1jj"]
 [ext_resource type="AudioStream" uid="uid://bk87vx0yx6c5q" path="res://assets/Music/Karate Man - Rhythm Tengoku (GBA) OST.mp3" id="9_g4kob"]
-[ext_resource type="AudioStream" uid="uid://dwl53aosirwet" path="res://assets/SFX/extra_1_00_06.wav" id="10_qy1jj"]
+[ext_resource type="Texture2D" uid="uid://o3t5ct3xkvbv" path="res://assets/Misc/HitEffect.png" id="9_qy1jj"]
+
+[sub_resource type="GDScript" id="GDScript_qy1jj"]
 
 [node name="Game" type="Node2D" unique_id=841697859]
 script = ExtResource("1_400sg")
 metadata/BPM = 119.0
 metadata/CanBop = true
-metadata/Offset = 250.0
+metadata/Offset = 280.0
 
 [node name="Objects" type="Node2D" parent="." unique_id=724743090]
-script = ExtResource("2_3xj3m")
+script = SubResource("GDScript_qy1jj")
 
 [node name="KarateJoe" type="Node2D" parent="." unique_id=1534165855]
 position = Vector2(275, 235)
@@ -50,7 +51,7 @@ position = Vector2(-31, 84)
 texture = ExtResource("5_400sg")
 
 [node name="Reference" type="Sprite2D" parent="." unique_id=137896315]
-position = Vector2(1282.9999, 86.99994)
+position = Vector2(1407, 118)
 scale = Vector2(0.23170732, 0.23170732)
 texture = ExtResource("7_qy1jj")
 
@@ -60,11 +61,22 @@ position = Vector2(480.19513, 269.96338)
 scale = Vector2(1.9991869, 1.6877284)
 texture = ExtResource("6_g4kob")
 
+[node name="ChangingBackground" type="Sprite2D" parent="." unique_id=1913353330]
+z_index = -100
+position = Vector2(480.19513, 269.96338)
+scale = Vector2(1.9991869, 1.6877284)
+texture = ExtResource("6_g4kob")
+
+[node name="HitEffect" type="Sprite2D" parent="." unique_id=723858825]
+visible = false
+scale = Vector2(2, 2)
+texture = ExtResource("9_qy1jj")
+
 [node name="SongPlayer" type="AudioStreamPlayer2D" parent="." unique_id=1512952466]
 stream = ExtResource("9_g4kob")
+volume_db = -7.342
 
-[node name="Metronome" type="AudioStreamPlayer2D" parent="." unique_id=399114468]
-stream = ExtResource("10_qy1jj")
+[node name="SFXPlayer" type="AudioStreamPlayer2D" parent="." unique_id=1937711564]
 
 [node name="Beat" type="Timer" parent="." unique_id=1534069893]
 
