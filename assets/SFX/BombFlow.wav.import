@@ -2,13 +2,13 @@
 
 importer="wav"
 type="AudioStreamWAV"
-uid="uid://emj3ett8y846"
-path="res://.godot/imported/PotHit.wav-a314da463757d58ca9accfd3a60371fa.sample"
+uid="uid://tfeplne14505"
+path="res://.godot/imported/BombFlow.wav-b33ad4424aa6657aaca0b177e144f8b1.sample"
 
 [deps]
 
-source_file="res://assets/SFX/PotHit.wav"
-dest_files=["res://.godot/imported/PotHit.wav-a314da463757d58ca9accfd3a60371fa.sample"]
+source_file="res://assets/SFX/BombFlow.wav"
+dest_files=["res://.godot/imported/BombFlow.wav-b33ad4424aa6657aaca0b177e144f8b1.sample"]
 
 [params]
 

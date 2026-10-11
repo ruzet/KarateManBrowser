@@ -7,9 +7,12 @@
 [ext_resource type="Texture2D" uid="uid://b8vjhblov2862" path="res://assets/KarateJoe/KarateJoeLeftLeg.png" id="4_kiw3p"]
 [ext_resource type="Texture2D" uid="uid://cyuh7kewu46hy" path="res://assets/KarateJoe/KarateJoeRightLeg.png" id="5_400sg"]
 [ext_resource type="Texture2D" uid="uid://jp80p6p2clf" path="res://assets/Misc/KaratekaBackground1.png" id="6_g4kob"]
+[ext_resource type="Texture2D" uid="uid://dm5vk1c7g78in" path="res://assets/Text/FlowText.png" id="7_mcffj"]
 [ext_resource type="Texture2D" uid="uid://c4omqetrsawjk" path="res://assets/Misc/Reference.png" id="7_qy1jj"]
+[ext_resource type="Texture2D" uid="uid://78re04hkygj5" path="res://assets/FlowHearts/NoFlowHeart.png" id="8_2rd6h"]
 [ext_resource type="AudioStream" uid="uid://bk87vx0yx6c5q" path="res://assets/Music/Karate Man - Rhythm Tengoku (GBA) OST.mp3" id="9_g4kob"]
 [ext_resource type="Texture2D" uid="uid://o3t5ct3xkvbv" path="res://assets/Misc/HitEffect.png" id="9_qy1jj"]
+[ext_resource type="Texture2D" uid="uid://cs5t6t6u88rsp" path="res://assets/Misc/KaratekaBackground2.png" id="11_2rd6h"]
 
 [sub_resource type="GDScript" id="GDScript_qy1jj"]
 
@@ -50,6 +53,38 @@ z_index = -2
 position = Vector2(-31, 84)
 texture = ExtResource("5_400sg")
 
+[node name="Flow" type="Node2D" parent="." unique_id=869148802]
+
+[node name="Text" type="Sprite2D" parent="Flow" unique_id=79973780]
+position = Vector2(79, 386)
+scale = Vector2(1.7916666, 1.7916667)
+texture = ExtResource("7_mcffj")
+
+[node name="Heart1" type="Sprite2D" parent="Flow" unique_id=888763500]
+position = Vector2(79, 291)
+scale = Vector2(1.6458335, 1.6458336)
+texture = ExtResource("8_2rd6h")
+
+[node name="Heart2" type="Sprite2D" parent="Flow" unique_id=1433208099]
+position = Vector2(79, 241)
+scale = Vector2(1.6458335, 1.6458336)
+texture = ExtResource("8_2rd6h")
+
+[node name="Heart3" type="Sprite2D" parent="Flow" unique_id=865008355]
+position = Vector2(79, 191)
+scale = Vector2(1.6458335, 1.6458336)
+texture = ExtResource("8_2rd6h")
+
+[node name="Heart4" type="Sprite2D" parent="Flow" unique_id=381250718]
+position = Vector2(79, 141)
+scale = Vector2(1.6458335, 1.6458336)
+texture = ExtResource("8_2rd6h")
+
+[node name="Heart5" type="Sprite2D" parent="Flow" unique_id=1425102598]
+position = Vector2(79, 91)
+scale = Vector2(1.6458335, 1.6458336)
+texture = ExtResource("8_2rd6h")
+
 [node name="Reference" type="Sprite2D" parent="." unique_id=137896315]
 position = Vector2(1407, 118)
 scale = Vector2(0.23170732, 0.23170732)
@@ -65,7 +100,8 @@ texture = ExtResource("6_g4kob")
 z_index = -100
 position = Vector2(480.19513, 269.96338)
 scale = Vector2(1.9991869, 1.6877284)
-texture = ExtResource("6_g4kob")
+texture = ExtResource("11_2rd6h")
+metadata/Frame2 = false
 
 [node name="HitEffect" type="Sprite2D" parent="." unique_id=723858825]
 visible = false
@@ -77,3 +113,5 @@ stream = ExtResource("9_g4kob")
 volume_db = -7.342
 
 [node name="SFXPlayer" type="AudioStreamPlayer2D" parent="." unique_id=1937711564]
+
+[node name="Text" type="Node2D" parent="." unique_id=124472111]

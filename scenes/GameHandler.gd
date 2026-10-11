@@ -1,8 +1,10 @@
 extends Node2D
 @onready var SongPlayer = find_child("SongPlayer")
-@onready var SFXPlayer = find_child("SFXPlayer")
 @onready var Objects = find_child("Objects")
 @onready var HitEffect = find_child("HitEffect")
+@onready var FlowUI = find_child("Flow")
+@onready var Background = find_child("Background")
+@onready var ChangingBackground = find_child("ChangingBackground")
 
 @onready var KarateJoeHead = find_child("KarateJoeHead")
 @onready var KarateJoeBody = find_child("KarateJoeBody")
@@ -68,18 +70,85 @@ extends Node2D
 @onready var PunchID = 0
 @onready var OffsetSec = 0.0
 @onready var Flow = 0
+@onready var FlowState = false
 
 func GetSongTime() -> float:
 	return SongPlayer.get_playback_position() + AudioServer.get_time_since_last_mix() - AudioServer.get_output_latency()
 
 func PlaySound(SoundPath: String):
+	var SFXPlayer = AudioStreamPlayer2D.new()
+	add_child(SFXPlayer)
+	SFXPlayer.volume_db = 2
 	SFXPlayer.stream = load(SoundPath)
 	SFXPlayer.play()
+	await SFXPlayer.finished
+	SFXPlayer.queue_free()
+
 
 func DeleteProjectile(P):
 	Projectiles.erase(P)
 	if is_instance_valid(P):
 		P.delete()
+
+func UpdateFlow():
+	var EmptyHeart = "res://assets/FlowHearts/NoFlowHeart.png"
+	var BlueHeart = "res://assets/FlowHearts/BlueFlowHeart.png"
+	var CyanHeart = "res://assets/FlowHearts/CyanFlowHeart.png"
+	var RedHeart = "res://assets/FlowHearts/RedFlowHeart.png"
+	var GoldHeart = "res://assets/FlowHearts/GoldFlowHeart.png"
+
+	if Flow >= 3 && FlowState == false:
+		PlaySound("res://assets/SFX/OhYeah.wav")
+		Background.visible = false
+		FlowState = true
+	elif Flow <= 2 && FlowState == true:
+		Background.visible = true
+		FlowState = false
+		
+	if Flow == 0:
+		FlowUI.find_child("Heart1").texture = load(EmptyHeart)
+		FlowUI.find_child("Heart2").texture = load(EmptyHeart)
+		FlowUI.find_child("Heart3").texture = load(EmptyHeart)
+		FlowUI.find_child("Heart4").texture = load(EmptyHeart)
+		FlowUI.find_child("Heart5").texture = load(EmptyHeart)
+	elif Flow == 1:
+		FlowUI.find_child("Heart1").texture = load(BlueHeart)
+		FlowUI.find_child("Heart2").texture = load(EmptyHeart)
+		FlowUI.find_child("Heart3").texture = load(EmptyHeart)
+		FlowUI.find_child("Heart4").texture = load(EmptyHeart)
+		FlowUI.find_child("Heart5").texture = load(EmptyHeart)
+	elif Flow == 2:
+		FlowUI.find_child("Heart1").texture = load(BlueHeart)
+		FlowUI.find_child("Heart2").texture = load(BlueHeart)
+		FlowUI.find_child("Heart3").texture = load(EmptyHeart)
+		FlowUI.find_child("Heart4").texture = load(EmptyHeart)
+		FlowUI.find_child("Heart5").texture = load(EmptyHeart)
+	elif Flow == 3:
+		FlowUI.find_child("Heart1").texture = load(CyanHeart)
+		FlowUI.find_child("Heart2").texture = load(CyanHeart)
+		FlowUI.find_child("Heart3").texture = load(RedHeart)
+		FlowUI.find_child("Heart4").texture = load(EmptyHeart)
+		FlowUI.find_child("Heart5").texture = load(EmptyHeart)
+	elif Flow == 4:
+		FlowUI.find_child("Heart1").texture = load(CyanHeart)
+		FlowUI.find_child("Heart2").texture = load(CyanHeart)
+		FlowUI.find_child("Heart3").texture = load(RedHeart)
+		FlowUI.find_child("Heart4").texture = load(RedHeart)
+		FlowUI.find_child("Heart5").texture = load(EmptyHeart)
+	elif Flow == 5:
+		FlowUI.find_child("Heart1").texture = load(GoldHeart)
+		FlowUI.find_child("Heart2").texture = load(GoldHeart)
+		FlowUI.find_child("Heart3").texture = load(GoldHeart)
+		FlowUI.find_child("Heart4").texture = load(GoldHeart)
+		FlowUI.find_child("Heart5").texture = load(GoldHeart)
+
+func Miss(Target):
+	if not is_instance_valid(Target):
+		return
+	Flow = 0
+	UpdateFlow()
+	await get_tree().create_timer(2.0).timeout
+	DeleteProjectile(Target)
 
 func ReturnToOriginalPositions():
 	HeadTween.stop()
@@ -95,6 +164,10 @@ func ReturnToOriginalPositions():
 func MakeRhythm(ProjectileType: String, ExpectedHitTime: float):
 	var Proj = Projectile.new()
 	Projectiles.append(Proj)
+	var T = TimePerBeat
+	Proj.Gravity = 5000
+	Proj.YVelocity = (459 + 0.5 * Proj.Gravity * T * (T - 1.0 / 60.0)) / T
+	Proj.XVelocity = (400 - OriginalLeftArmPosition.x) / T
 	Proj.init(ProjectileType)
 	PlaySound("res://assets/SFX/Throw.wav")
 	
@@ -106,16 +179,39 @@ func ProcessInput():
 		var Target = CurrentProjectile
 		var HitOffset = abs(GetSongTime() - CurrentHitTime)
 
-		if HitOffset < HitTiming:
+		if FlowState == false && (Target.Type == "Rock" || Target.Type == "Bomb") && HitOffset < BarelyTiming:
+			PlaySound("res://assets/SFX/NoFlow.wav")
+			ReturnToOriginalPositions()
+			Punch3()
 			CurrentProjectile = null
-			PlaySound("res://assets/SFX/PotHit.wav")
-			Target.XVelocity = -1500
+			Target.XVelocity = 0
+			Target.YVelocity = 10
+			Target.Gravity = 200
+			Target.RotatePerFrame = 0
+			Target.ScaleDecrement = 0
+			Miss(Target)
+			return
+
+
+		if HitOffset < HitTiming:
+			if Flow < 5:	
+				Flow += 1
+				UpdateFlow()
+			CurrentProjectile = null
+
+			if FlowState == true:
+				PlaySound("res://assets/SFX/" + Target.Type + "Flow.wav")
+				if Target.Type == "Rock":
+					PlaySound("res://assets/SFX/Cheering.wav")
+			else:
+				PlaySound("res://assets/SFX/RegularHit.wav")
+
+
+			Target.XVelocity = -2000
 			Target.YVelocity = 0
 			Target.Gravity = 500
 			Target.RotatePerFrame = 10
 			Target.ScaleDecrement = 0
-
-			Flow += 1
 			HitEffect.position = Target.position
 			HitEffect.visible = true
 			await get_tree().create_timer(0.05).timeout
@@ -123,6 +219,9 @@ func ProcessInput():
 			await get_tree().create_timer(0.5).timeout
 			DeleteProjectile(Target)
 		elif HitOffset < BarelyTiming:
+			if Flow > 0:	
+				Flow -= 1 
+				UpdateFlow()
 			CurrentProjectile = null
 			PlaySound("res://assets/SFX/Barely.wav")
 			Target.XVelocity = -30
@@ -182,7 +281,41 @@ func Punch2():
 	BodyTween.play()
 	LegTween.play()
 
+func Punch3():
+	PunchID += 1
+	var MyID = PunchID
+	var Cooldown = 0.05
+	self.set_meta("CanBop", false)
+	KarateJoeLeftArm.texture = load("res://assets/KarateJoe/KarateJoeArmAngry.png")
+	KarateJoeLeftArm.position = Vector2(5, -76)
+	await get_tree().create_timer(Cooldown * 20).timeout
+	if MyID != PunchID: return
+	KarateJoeLeftArm.texture = load("res://assets/KarateJoe/KarateJoePunch1.png")
+	KarateJoeLeftArm.position = Vector2(5, -62)
+	await get_tree().create_timer(Cooldown).timeout
+	if MyID != PunchID: return
+	KarateJoeLeftArm.texture = load("res://assets/KarateJoe/KarateJoePunch2.png")
+	KarateJoeLeftArm.position = Vector2(5, -54)
+	await get_tree().create_timer(Cooldown).timeout
+	if MyID != PunchID: return
+	KarateJoeLeftArm.texture = load("res://assets/KarateJoe/KarateJoePunch3.png")
+	KarateJoeLeftArm.position = OriginalLeftArmPosition
+	await get_tree().create_timer(Cooldown).timeout
+	if MyID != PunchID: return
+	KarateJoeLeftArm.texture = load("res://assets/KarateJoe/KarateJoeArmIdle.png")
+	await get_tree().create_timer(TimePerBeat * 2).timeout
+	if MyID != PunchID: return
+	self.set_meta("CanBop", true)
+
 func Bop():
+	if ChangingBackground.get_meta("Frame2") == false:
+		ChangingBackground.texture = load("res://assets/Misc/KaratekaBackground2.png")
+		ChangingBackground.set_meta("Frame2", true)
+	else:
+		ChangingBackground.texture = load("res://assets/Misc/KaratekaBackground3.png")
+		ChangingBackground.set_meta("Frame2", false)
+
+
 	if self.get_meta("CanBop") == true:
 		var HeadPosition = Vector2(0, -70)
 		var BodyPosition = Vector2(0, 10)
@@ -229,7 +362,11 @@ func _process(delta: float) -> void:
 		if ProjectileChart.has(str(BeatNumber)):
 			MakeRhythm(ProjectileChart.get(str(BeatNumber)), BeatTime + TimePerBeat)
 
-	# Drop a deleted current projectile
+	if CurrentProjectile != null and SongTime - CurrentHitTime > BarelyTiming:
+		var Missed = CurrentProjectile
+		CurrentProjectile = null
+		Miss(Missed)
+
 	if not is_instance_valid(CurrentProjectile):
 		CurrentProjectile = null
 
@@ -237,6 +374,8 @@ func _process(delta: float) -> void:
 	if Queue.size() > 0:
 		var Next = Queue[0]
 		if CurrentProjectile == null or SongTime >= Next.time - BarelyTiming:
+			if CurrentProjectile != null:
+				Miss(CurrentProjectile)
 			Queue.pop_front()
 			CurrentProjectile = Next.proj
 			CurrentHitTime = Next.time
