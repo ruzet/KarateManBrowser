@@ -74,6 +74,9 @@ extends Node2D
 @onready var Flow = 0
 @onready var FlowState = false
 @onready var BeatsPaused = false
+@onready var Started = false
+@onready var SongStarted = false
+@onready var Calibration = -0.04
 
 func PauseBeats():
 	BeatsPaused = true
@@ -103,6 +106,8 @@ func ChangeHead(HeadSprite: String, Beats: int):
 		KarateJoeHead.texture = load("res://assets/KarateJoe/KarateJoeHeadNormal.png")
 
 func GetSongTime() -> float:
+	if OS.has_feature("web"):
+		return SongPlayer.get_playback_position() + Calibration
 	return SongPlayer.get_playback_position() + AudioServer.get_time_since_last_mix() - AudioServer.get_output_latency()
 
 func PunchCooldown(Cooldown: float):
@@ -385,6 +390,11 @@ func Bop():
 		ArmTween.play()
 
 func _input(event):
+	if not Started:
+		if (event is InputEventKey or event is InputEventMouseButton) and event.pressed:
+			Started = true
+			Ready()
+		return
 	if event.is_action_pressed("Punch") && self.get_meta("CanPunch") == true:
 		ReturnToOriginalPositions()
 		PlaySound("res://assets/SFX/Punch.wav")
@@ -392,18 +402,25 @@ func _input(event):
 		Punch2()
 		ProcessInput()
 
-func _ready() -> void:
+func Ready():
+	OffsetSec = self.get_meta("Offset") / 1000.0
+	NextBeatTime = OffsetSec
+	SongPlayer.play()
+	# wait until the audio has actually started advancing
+	while SongPlayer.get_playback_position() <= 0.0:
+		await get_tree().process_frame
+	SongStarted = true
 	var StartTween = create_tween()
 	StartTween.set_trans(Tween.TRANS_SINE)
 	StartTween.set_ease(Tween.EASE_IN_OUT)
 	StartTween.tween_property(self, "position", Vector2(0, 0), TimePerBeat * 14)
-	OffsetSec = self.get_meta("Offset") / 1000.0
-	NextBeatTime = OffsetSec
-	SongPlayer.play()
-	StartTween.play()
 
+func _ready() -> void:
+	preload("res://assets/Music/Karate Man - Rhythm Tengoku (GBA) OST.mp3")
 
 func _process(delta: float) -> void:
+	if not Started or not SongStarted:
+		return
 	TimePerBeat = 60.0 / self.get_meta("BPM")
 	var SongTime = GetSongTime()
 
