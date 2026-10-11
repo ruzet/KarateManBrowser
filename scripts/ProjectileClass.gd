@@ -7,6 +7,7 @@ extends Node2D
 @export var Scale = 2
 @export var ScaleDecrement = 0.01
 @export var RotatePerFrame = 0
+@export var TimeExisting = 0
 @export var ProjectileNode = Sprite2D.new()
 
 func init(ProjectileType: String = "Pot"):
@@ -19,9 +20,11 @@ func init(ProjectileType: String = "Pot"):
 
 func update(delta):
 	Scale -= ScaleDecrement
+	TimeExisting += delta
+
 	self.position = Vector2(self.position.x - (XVelocity * delta), self.position.y - (YVelocity * delta))
 	self.rotation_degrees = self.rotation_degrees - RotatePerFrame
-	if self.position.y > 400 && YVelocity < 0:
+	if self.position.y > 400 && YVelocity < -50:
 		XVelocity = 0
 		YVelocity = 0
 		Gravity = 0 

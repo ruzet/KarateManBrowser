@@ -15,9 +15,9 @@
 
 [node name="Game" type="Node2D" unique_id=841697859]
 script = ExtResource("1_400sg")
-metadata/BPM = 119.0
+metadata/BPM = 118.9
 metadata/CanBop = true
-metadata/Offset = 280.0
+metadata/Offset = 150.0
 
 [node name="Objects" type="Node2D" parent="." unique_id=724743090]
 script = SubResource("GDScript_qy1jj")
@@ -77,8 +77,3 @@ stream = ExtResource("9_g4kob")
 volume_db = -7.342
 
 [node name="SFXPlayer" type="AudioStreamPlayer2D" parent="." unique_id=1937711564]
-
-[node name="Beat" type="Timer" parent="." unique_id=1534069893]
-
-[node name="Offset" type="Timer" parent="." unique_id=450660771]
-one_shot = true

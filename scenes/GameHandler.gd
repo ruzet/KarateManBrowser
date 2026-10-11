@@ -1,8 +1,6 @@
 extends Node2D
 @onready var SongPlayer = find_child("SongPlayer")
 @onready var SFXPlayer = find_child("SFXPlayer")
-@onready var Beat = find_child("Beat")
-@onready var Offset = find_child("Offset")
 @onready var Objects = find_child("Objects")
 @onready var HitEffect = find_child("HitEffect")
 
@@ -18,6 +16,7 @@ extends Node2D
 @onready var OriginalLeftLegPosition = Vector2(16, 84)
 @onready var OriginalRightLegPosition = Vector2(-31, 84)
 @onready var Projectiles = []
+@onready var Queue = []
 @onready var ProjectileChart = {
 	"15" = "Pot",
 	"23" = "Pot",
@@ -30,7 +29,29 @@ extends Node2D
 	"67" = "Pot",
 	"71" = "Pot",
 	"75" = "Soccer",
-	"80" = "Pot"
+	"80" = "Pot",
+	"87" = "Pot",
+	"91" = "Rock",
+	"97" = "Pot",
+	"99" = "Pot",
+	"101" = "Pot",
+	"103" = "Pot",
+	"105" = "Soccer",
+	"109" = "Lightbulb",
+	"110" = "Lightbulb",
+	"111" = "Rock",
+	"113" = "Pot",
+	"115" = "Pot",
+	"117" = "Pot",
+	"119" = "Pot",
+	"121" = "Pot",
+	"123" = "Pot",
+	"125" = "Pot",
+	"127" = "Pot",
+	"129" = "Pot",
+	"131" = "Rock",
+	"134" = "Lightbulb",
+	"135" = "Bomb",
 }
 
 @onready var HeadTween = create_tween()
@@ -45,10 +66,20 @@ extends Node2D
 @onready var BarelyTiming = 80.0 / 1000.0
 @onready var TimePerBeat = 60.0 / 119.0
 @onready var PunchID = 0
+@onready var OffsetSec = 0.0
+@onready var Flow = 0
+
+func GetSongTime() -> float:
+	return SongPlayer.get_playback_position() + AudioServer.get_time_since_last_mix() - AudioServer.get_output_latency()
 
 func PlaySound(SoundPath: String):
 	SFXPlayer.stream = load(SoundPath)
 	SFXPlayer.play()
+
+func DeleteProjectile(P):
+	Projectiles.erase(P)
+	if is_instance_valid(P):
+		P.delete()
 
 func ReturnToOriginalPositions():
 	HeadTween.stop()
@@ -68,33 +99,39 @@ func MakeRhythm(ProjectileType: String, ExpectedHitTime: float):
 	PlaySound("res://assets/SFX/Throw.wav")
 	
 	Objects.add_child(Proj)
-	CurrentProjectile = Proj
-	CurrentHitTime = ExpectedHitTime
+	Queue.append({"proj": Proj, "time": ExpectedHitTime})
 
 func ProcessInput():
-	if CurrentProjectile && CurrentHitTime:
-		var HitOffset = abs(SongPlayer.get_playback_position() - CurrentHitTime)
+	if is_instance_valid(CurrentProjectile) && CurrentHitTime:
+		var Target = CurrentProjectile
+		var HitOffset = abs(GetSongTime() - CurrentHitTime)
 
 		if HitOffset < HitTiming:
+			CurrentProjectile = null
 			PlaySound("res://assets/SFX/PotHit.wav")
-			CurrentProjectile.XVelocity = -1000
-			CurrentProjectile.YVelocity = 0
-			CurrentProjectile.Gravity = 500
-			CurrentProjectile.RotatePerFrame = 10
-			CurrentProjectile.ScaleDecrement = 0
+			Target.XVelocity = -1500
+			Target.YVelocity = 0
+			Target.Gravity = 500
+			Target.RotatePerFrame = 10
+			Target.ScaleDecrement = 0
 
-			HitEffect.position = Vector2(CurrentProjectile.position.x, CurrentProjectile.position.y)
+			Flow += 1
+			HitEffect.position = Target.position
 			HitEffect.visible = true
 			await get_tree().create_timer(0.05).timeout
 			HitEffect.visible = false
+			await get_tree().create_timer(0.5).timeout
+			DeleteProjectile(Target)
 		elif HitOffset < BarelyTiming:
+			CurrentProjectile = null
 			PlaySound("res://assets/SFX/Barely.wav")
-			CurrentProjectile.XVelocity = -30
-			CurrentProjectile.YVelocity = 100
-			CurrentProjectile.Gravity = 350
-			CurrentProjectile.RotatePerFrame = 5
-			CurrentProjectile.ScaleDecrement = 0
-	pass
+			Target.XVelocity = -30
+			Target.YVelocity = 100
+			Target.Gravity = 350
+			Target.RotatePerFrame = 5
+			Target.ScaleDecrement = 0
+			await get_tree().create_timer(2).timeout
+			DeleteProjectile(Target)
 
 func Punch():
 	PunchID += 1
@@ -178,24 +215,34 @@ func _input(event):
 		ProcessInput()
 
 func _ready() -> void:
-	Beat.wait_time = 60 / self.get_meta("BPM")
-	Offset.wait_time = self.get_meta("Offset") / 1000
-
+	OffsetSec = self.get_meta("Offset") / 1000.0
 	SongPlayer.play()
-	Offset.start()
-	await Offset.timeout
-	Beat.start()
-
-	while true:
-		BeatNumber += 1
-		Bop()
-		if ProjectileChart.has(str(BeatNumber)):
-			MakeRhythm(ProjectileChart.get(str(BeatNumber)), SongPlayer.get_playback_position() + TimePerBeat)
-		await Beat.timeout
-	
 
 func _process(delta: float) -> void:
-	TimePerBeat = 60 / self.get_meta("BPM")
-	for ProjectileObject in Projectiles:
-		ProjectileObject.update(delta)
-	pass
+	TimePerBeat = 60.0 / self.get_meta("BPM")
+	var SongTime = GetSongTime()
+
+	while SongTime >= OffsetSec + BeatNumber * TimePerBeat:
+		BeatNumber += 1
+		var BeatTime = OffsetSec + (BeatNumber - 1) * TimePerBeat
+		Bop()
+		if ProjectileChart.has(str(BeatNumber)):
+			MakeRhythm(ProjectileChart.get(str(BeatNumber)), BeatTime + TimePerBeat)
+
+	# Drop a deleted current projectile
+	if not is_instance_valid(CurrentProjectile):
+		CurrentProjectile = null
+
+	# Promote the next projectile
+	if Queue.size() > 0:
+		var Next = Queue[0]
+		if CurrentProjectile == null or SongTime >= Next.time - BarelyTiming:
+			Queue.pop_front()
+			CurrentProjectile = Next.proj
+			CurrentHitTime = Next.time
+
+	for i in range(Projectiles.size() - 1, -1, -1):
+		var P = Projectiles[i]
+		P.update(delta)
+		if P.TimeExisting > 5:
+			DeleteProjectile(P)
