@@ -195,6 +195,7 @@ func _ready() -> void:
 	
 
 func _process(delta: float) -> void:
+	TimePerBeat = 60 / self.get_meta("BPM")
 	for ProjectileObject in Projectiles:
 		ProjectileObject.update(delta)
 	pass
