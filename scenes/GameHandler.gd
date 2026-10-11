@@ -54,6 +54,7 @@ extends Node2D
 	"131" = "Rock",
 	"134" = "Lightbulb",
 	"135" = "Bomb",
+	"155" = "Rock"
 }
 
 @onready var HeadTween = create_tween()
@@ -65,15 +66,49 @@ extends Node2D
 @onready var CurrentProjectile = null
 @onready var CurrentHitTime = 0
 @onready var HitTiming = 55.0 / 1000.0
-@onready var BarelyTiming = 80.0 / 1000.0
+@onready var BarelyTiming = 95.0 / 1000.0
 @onready var TimePerBeat = 60.0 / 119.0
 @onready var PunchID = 0
 @onready var OffsetSec = 0.0
+@onready var NextBeatTime = 0.0
 @onready var Flow = 0
 @onready var FlowState = false
+@onready var BeatsPaused = false
+
+func PauseBeats():
+	BeatsPaused = true
+
+func ResumeBeats():
+	BeatsPaused = false
+	NextBeatTime = GetSongTime() + TimePerBeat
+
+func DisplayWarning(WarningToShow: String):
+	if WarningToShow == "Hit3":
+		find_child("HitNumber").find_child("Number").texture = load("res://assets/Text/Three.png")
+		find_child("HitNumber").visible = true
+	elif WarningToShow == "Hit2":
+		find_child("HitNumber").find_child("Number").texture = load("res://assets/Text/Two.png")
+		find_child("HitNumber").visible = true
+	elif WarningToShow == "Wait":
+		find_child("Wait").visible = true
+	await get_tree().create_timer(TimePerBeat).timeout
+	find_child("HitNumber").visible = false
+	find_child("Wait").visible = false
+
+func ChangeHead(HeadSprite: String, Beats: int):
+	KarateJoeHead.texture = load(HeadSprite)
+
+	if self.get_meta("BPM") != 140.5:
+		await get_tree().create_timer(TimePerBeat * Beats).timeout
+		KarateJoeHead.texture = load("res://assets/KarateJoe/KarateJoeHeadNormal.png")
 
 func GetSongTime() -> float:
 	return SongPlayer.get_playback_position() + AudioServer.get_time_since_last_mix() - AudioServer.get_output_latency()
+
+func PunchCooldown(Cooldown: float):
+	self.set_meta("CanPunch", false)
+	await get_tree().create_timer(Cooldown).timeout
+	self.set_meta("CanPunch", true)
 
 func PlaySound(SoundPath: String):
 	var SFXPlayer = AudioStreamPlayer2D.new()
@@ -83,7 +118,6 @@ func PlaySound(SoundPath: String):
 	SFXPlayer.play()
 	await SFXPlayer.finished
 	SFXPlayer.queue_free()
-
 
 func DeleteProjectile(P):
 	Projectiles.erase(P)
@@ -174,6 +208,13 @@ func MakeRhythm(ProjectileType: String, ExpectedHitTime: float):
 	Objects.add_child(Proj)
 	Queue.append({"proj": Proj, "time": ExpectedHitTime})
 
+func SetBPM(NewBPM: float):
+	var NewTPB = 60.0 / NewBPM
+	var LastBeatTime = NextBeatTime - TimePerBeat
+	NextBeatTime = LastBeatTime + NewTPB
+	TimePerBeat = NewTPB
+	self.set_meta("BPM", NewBPM)
+
 func ProcessInput():
 	if is_instance_valid(CurrentProjectile) && CurrentHitTime:
 		var Target = CurrentProjectile
@@ -192,7 +233,6 @@ func ProcessInput():
 			Miss(Target)
 			return
 
-
 		if HitOffset < HitTiming:
 			if Flow < 5:	
 				Flow += 1
@@ -202,7 +242,10 @@ func ProcessInput():
 			if FlowState == true:
 				PlaySound("res://assets/SFX/" + Target.Type + "Flow.wav")
 				if Target.Type == "Rock":
+					ChangeHead("res://assets/KarateJoe/KarateJoeHeadHappy.png", 2)
 					PlaySound("res://assets/SFX/Cheering.wav")
+				elif Target.Type == "Bomb":
+					ChangeHead("res://assets/KarateJoe/KarateJoeHeadVeryHappy.png", 4)
 			else:
 				PlaySound("res://assets/SFX/RegularHit.wav")
 
@@ -233,10 +276,11 @@ func ProcessInput():
 			DeleteProjectile(Target)
 
 func Punch():
+	PunchCooldown(TimePerBeat / 2)
 	PunchID += 1
 	var MyID = PunchID
 	var Cooldown = 0.03
-	self.set_meta("CanBop", false)
+	self.set_meta("PunchCanBop", false)
 	KarateJoeLeftArm.texture = load("res://assets/KarateJoe/KarateJoeArmNormal.png")
 	KarateJoeLeftArm.position = Vector2(5, -76)
 	await get_tree().create_timer(Cooldown * 5).timeout
@@ -256,7 +300,7 @@ func Punch():
 	KarateJoeLeftArm.texture = load("res://assets/KarateJoe/KarateJoeArmIdle.png")
 	await get_tree().create_timer(TimePerBeat / 2).timeout
 	if MyID != PunchID: return
-	self.set_meta("CanBop", true)
+	self.set_meta("PunchCanBop", true)
 
 func Punch2():
 	var HeadPosition = Vector2(-3, -70)
@@ -284,11 +328,12 @@ func Punch2():
 func Punch3():
 	PunchID += 1
 	var MyID = PunchID
-	var Cooldown = 0.05
-	self.set_meta("CanBop", false)
+	var Cooldown = 0.065
+	PunchCooldown(TimePerBeat * 3)
+	self.set_meta("PunchCanBop", false)
 	KarateJoeLeftArm.texture = load("res://assets/KarateJoe/KarateJoeArmAngry.png")
 	KarateJoeLeftArm.position = Vector2(5, -76)
-	await get_tree().create_timer(Cooldown * 20).timeout
+	await get_tree().create_timer(Cooldown * 18).timeout
 	if MyID != PunchID: return
 	KarateJoeLeftArm.texture = load("res://assets/KarateJoe/KarateJoePunch1.png")
 	KarateJoeLeftArm.position = Vector2(5, -62)
@@ -305,7 +350,7 @@ func Punch3():
 	KarateJoeLeftArm.texture = load("res://assets/KarateJoe/KarateJoeArmIdle.png")
 	await get_tree().create_timer(TimePerBeat * 2).timeout
 	if MyID != PunchID: return
-	self.set_meta("CanBop", true)
+	self.set_meta("PunchCanBop", true)
 
 func Bop():
 	if ChangingBackground.get_meta("Frame2") == false:
@@ -316,7 +361,7 @@ func Bop():
 		ChangingBackground.set_meta("Frame2", false)
 
 
-	if self.get_meta("CanBop") == true:
+	if self.get_meta("SystemCanBop") == true && self.get_meta("PunchCanBop") == true:
 		var HeadPosition = Vector2(0, -70)
 		var BodyPosition = Vector2(0, 10)
 		var ArmPosition = Vector2(9, -45)
@@ -340,7 +385,7 @@ func Bop():
 		ArmTween.play()
 
 func _input(event):
-	if event.is_action_pressed("Punch"):
+	if event.is_action_pressed("Punch") && self.get_meta("CanPunch") == true:
 		ReturnToOriginalPositions()
 		PlaySound("res://assets/SFX/Punch.wav")
 		Punch()
@@ -348,19 +393,46 @@ func _input(event):
 		ProcessInput()
 
 func _ready() -> void:
+	var StartTween = create_tween()
+	StartTween.set_trans(Tween.TRANS_SINE)
+	StartTween.set_ease(Tween.EASE_IN_OUT)
+	StartTween.tween_property(self, "position", Vector2(0, 0), TimePerBeat * 14)
 	OffsetSec = self.get_meta("Offset") / 1000.0
+	NextBeatTime = OffsetSec
 	SongPlayer.play()
+	StartTween.play()
+
 
 func _process(delta: float) -> void:
 	TimePerBeat = 60.0 / self.get_meta("BPM")
 	var SongTime = GetSongTime()
 
-	while SongTime >= OffsetSec + BeatNumber * TimePerBeat:
-		BeatNumber += 1
-		var BeatTime = OffsetSec + (BeatNumber - 1) * TimePerBeat
-		Bop()
-		if ProjectileChart.has(str(BeatNumber)):
-			MakeRhythm(ProjectileChart.get(str(BeatNumber)), BeatTime + TimePerBeat)
+	if not BeatsPaused:
+		while SongTime >= NextBeatTime:
+			BeatNumber += 1
+			var BeatTime = NextBeatTime
+			NextBeatTime += TimePerBeat
+			Bop()
+			if BeatNumber == 79:
+				DisplayWarning("Wait")
+			elif BeatNumber == 108:
+				DisplayWarning("Hit3")
+			elif BeatNumber == 133:
+				DisplayWarning("Hit2")
+			elif BeatNumber == 137:
+				SetBPM(150)
+			elif BeatNumber == 149:
+				self.set_meta("SystemCanBop", false)
+				SetBPM(136)
+			elif BeatNumber == 153:
+				self.set_meta("SystemCanBop", true)
+				SetBPM(140.5)
+			elif BeatNumber == 156:
+				self.set_meta("SystemCanBop", false)
+				PauseBeats()
+
+			if ProjectileChart.has(str(BeatNumber)):
+				MakeRhythm(ProjectileChart.get(str(BeatNumber)), BeatTime + TimePerBeat)
 
 	if CurrentProjectile != null and SongTime - CurrentHitTime > BarelyTiming:
 		var Missed = CurrentProjectile

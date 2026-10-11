@@ -13,14 +13,21 @@
 [ext_resource type="AudioStream" uid="uid://bk87vx0yx6c5q" path="res://assets/Music/Karate Man - Rhythm Tengoku (GBA) OST.mp3" id="9_g4kob"]
 [ext_resource type="Texture2D" uid="uid://o3t5ct3xkvbv" path="res://assets/Misc/HitEffect.png" id="9_qy1jj"]
 [ext_resource type="Texture2D" uid="uid://cs5t6t6u88rsp" path="res://assets/Misc/KaratekaBackground2.png" id="11_2rd6h"]
+[ext_resource type="Texture2D" uid="uid://c16lctcv67ceo" path="res://assets/Text/Three.png" id="14_vjgi4"]
+[ext_resource type="Texture2D" uid="uid://nqyo1u5erx1" path="res://assets/Text/HitJapanese.png" id="15_kyk2p"]
+[ext_resource type="Texture2D" uid="uid://2w17kwnjwvru" path="res://assets/Text/Exclamation.png" id="16_45i86"]
+[ext_resource type="Texture2D" uid="uid://vru86cu26bwx" path="res://assets/Text/Wait.png" id="17_sv1m6"]
 
 [sub_resource type="GDScript" id="GDScript_qy1jj"]
 
 [node name="Game" type="Node2D" unique_id=841697859]
+position = Vector2(962, 0)
 script = ExtResource("1_400sg")
 metadata/BPM = 118.9
-metadata/CanBop = true
 metadata/Offset = 150.0
+metadata/SystemCanBop = true
+metadata/PunchCanBop = false
+metadata/CanPunch = true
 
 [node name="Objects" type="Node2D" parent="." unique_id=724743090]
 script = SubResource("GDScript_qy1jj")
@@ -92,13 +99,13 @@ texture = ExtResource("7_qy1jj")
 
 [node name="Background" type="Sprite2D" parent="." unique_id=1610669340]
 z_index = -99
-position = Vector2(480.19513, 269.96338)
-scale = Vector2(1.9991869, 1.6877284)
+position = Vector2(0, 269.96338)
+scale = Vector2(4, 1.688)
 texture = ExtResource("6_g4kob")
 
 [node name="ChangingBackground" type="Sprite2D" parent="." unique_id=1913353330]
 z_index = -100
-position = Vector2(480.19513, 269.96338)
+position = Vector2(480, 269.96338)
 scale = Vector2(1.9991869, 1.6877284)
 texture = ExtResource("11_2rd6h")
 metadata/Frame2 = false
@@ -114,4 +121,35 @@ volume_db = -7.342
 
 [node name="SFXPlayer" type="AudioStreamPlayer2D" parent="." unique_id=1937711564]
 
-[node name="Text" type="Node2D" parent="." unique_id=124472111]
+[node name="Warnings" type="Node2D" parent="." unique_id=124472111]
+
+[node name="HitNumber" type="Node2D" parent="Warnings" unique_id=327438776]
+visible = false
+
+[node name="Number" type="Sprite2D" parent="Warnings/HitNumber" unique_id=629432679]
+position = Vector2(451, 97)
+scale = Vector2(2, 2.188)
+texture = ExtResource("14_vjgi4")
+
+[node name="Hit" type="Sprite2D" parent="Warnings/HitNumber" unique_id=1449246041]
+position = Vector2(511, 97)
+scale = Vector2(2, 2.188)
+texture = ExtResource("15_kyk2p")
+
+[node name="Exclamation" type="Sprite2D" parent="Warnings/HitNumber" unique_id=697853778]
+position = Vector2(561, 97)
+scale = Vector2(2, 2.188)
+texture = ExtResource("16_45i86")
+
+[node name="Wait" type="Node2D" parent="Warnings" unique_id=1268145330]
+visible = false
+
+[node name="Text" type="Sprite2D" parent="Warnings/Wait" unique_id=243453764]
+position = Vector2(451, 97)
+scale = Vector2(2, 2.188)
+texture = ExtResource("17_sv1m6")
+
+[node name="Exclamation" type="Sprite2D" parent="Warnings/Wait" unique_id=822651847]
+position = Vector2(504, 97)
+scale = Vector2(2, 2.188)
+texture = ExtResource("16_45i86")
